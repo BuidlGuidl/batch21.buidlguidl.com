@@ -39,16 +39,6 @@ export const BatchCard = ({ builderData, contractAddress }: BatchCardProps) => {
     args: [builderData.ethAddress as `0x${string}`],
   });
 
-  // const { data: checkInEvents } = useScaffoldEventHistory({
-  //   contractName: "BatchRegistry",
-  //   eventName: "CheckedIn",
-  //   fromBlock: BigInt(390605585),
-  //   filters: { builder: builderData.ethAddress } as EventFilters<"BatchRegistry", "CheckedIn">,
-  //   // transactionData: true,
-  //   // receiptData: true,
-  //   // watch: true,
-  // });
-
   return (
     <div className="bg-base-100 rounded-3xl shadow-md p-6 w-full">
       <h2 className="text-xl font-bold text-base-content mb-2">{`BuildGuild Batch #${batchNumber}`}</h2>
