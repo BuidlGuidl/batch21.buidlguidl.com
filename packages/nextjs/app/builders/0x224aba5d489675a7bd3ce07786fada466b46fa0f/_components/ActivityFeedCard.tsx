@@ -22,7 +22,7 @@ export const ActivityFeedCard = ({ activity }: ActivityFeedCardProps) => {
               href={activity.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-white hover:text-white/80 transition-colors"
+              className="text-xs text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 transition-colors"
             >
               View on {activity.type === "github" ? "GitHub" : "Warpcast"} →
             </a>
