@@ -1,5 +1,3 @@
-"use client";
-
 import { BatchCard } from "./_components/BatchCard";
 import { BuilderBio } from "./_components/BuilderBio";
 import { BuilderHeader } from "./_components/BuilderHeader";

@@ -1,5 +1,3 @@
-"use client";
-
 import { ActivityItem } from "../types";
 
 interface ActivityFeedCardProps {
