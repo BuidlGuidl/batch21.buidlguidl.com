@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SocialHandles } from "../types";
 import { CodeBracketIcon, NewspaperIcon, PaperAirplaneIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -8,8 +9,16 @@ interface SocialLinksProps {
   className?: string;
 }
 
-export const SocialLinks = ({ socialHandles, className = "" }: SocialLinksProps) => {
-  const socialLinks = [
+interface SocialLink {
+  name: string;
+  handle?: string;
+  icon: React.ElementType;
+  url: (handle: string) => string;
+  color: string;
+}
+
+const hydrateSocialLinks = (socialHandles: SocialHandles): SocialLink[] => {
+  return [
     {
       name: "GitHub",
       handle: socialHandles.github,
@@ -38,9 +47,15 @@ export const SocialLinks = ({ socialHandles, className = "" }: SocialLinksProps)
       url: (handle: string) => `https://warpcast.com/${handle}`,
       color: "hover:text-purple-500",
     },
-  ];
+  ].filter(link => link.handle);
+};
 
-  const availableLinks = socialLinks.filter(link => link.handle);
+export const SocialLinks = ({ socialHandles, className = "" }: SocialLinksProps) => {
+  const [availableLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  useEffect(() => {
+    const socialLinks = hydrateSocialLinks(socialHandles);
+    setSocialLinks(socialLinks);
+  }, [socialHandles]);
 
   if (availableLinks.length === 0) {
     return null;
@@ -58,7 +73,6 @@ export const SocialLinks = ({ socialHandles, className = "" }: SocialLinksProps)
           title={`Visit ${name} profile`}
         >
           <Icon className="h-5 w-5" />
-          {/* <span className="text-sm font-medium">{name}</span> */}
         </a>
       ))}
     </div>
