@@ -6,7 +6,7 @@ import { Address } from "~~/components/scaffold-eth";
 
 const SOCIAL_LINKS = [
   { href: "https://github.com/letmehateu", label: "GitHub", icon: "💻" },
-  { href: "https://x.com/hatedetah", label: "X", icon: "𝕏" },
+  { href: "https://x.com/0xhateme", label: "X", icon: "𝕏" },
   { href: "https://t.me/letmehateu", label: "Telegram", icon: "✈️" },
 ];
 
