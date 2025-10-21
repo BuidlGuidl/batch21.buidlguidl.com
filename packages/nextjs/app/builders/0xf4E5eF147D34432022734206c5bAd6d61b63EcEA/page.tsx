@@ -52,7 +52,7 @@ const LetmehateUPage: NextPage = () => {
                 <h3 className="text-lg font-semibold mb-4 text-base-content/90">About Me</h3>
                 <p className="text-base md:text-lg text-base-content/80 leading-relaxed">
                   Passionate Web3 developer building the future of decentralized applications. Always exploring new
-                  technologies and pushing the boundaries of what&apos;s possible on-chain. Currently focused on smart
+                  technologies and pushing the boundaries of what`s possible on-chain. Currently focused on smart
                   contracts and DeFi protocols.
                 </p>
                 <div className="mt-4 flex justify-center gap-2 flex-wrap">
