@@ -1,18 +1,60 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { PerspectiveCamera } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { useTheme } from "next-themes";
 import * as THREE from "three";
 
+// TypeScript interfaces for better type safety
 interface FloatingEthLogoProps {
+  position: [number, number, number];
+  speed: number;
+  scale: number;
+  isDarkMode: boolean;
+}
+
+interface LogoConfig {
+  id: string;
   position: [number, number, number];
   speed: number;
   scale: number;
 }
 
-// Create the exact Ethereum shape from the CodePen
-const createEthereumGeometry = () => {
+// Color schemes for both themes
+const COLOR_SCHEMES = {
+  dark: {
+    logos: [
+      "#87CEEB", // Sky blue (light)
+      "#5DB4E8", // Light blue
+      "#4A9FD8", // Medium light blue
+      "#3A8FD0", // Medium blue
+      "#2A7EC8", // Medium dark blue
+      "#1A6EBF", // Dark blue
+      "#0A5EB7", // Very dark blue
+    ],
+    background: "#0f172a", // Dark slate
+    ambientIntensity: 0.4,
+    pointLightBlue: "#627EEA",
+  },
+  light: {
+    logos: [
+      "#1E3A8A", // Dark blue
+      "#2563EB", // Blue-600
+      "#3B82F6", // Blue-500
+      "#60A5FA", // Blue-400
+      "#93C5FD", // Blue-300
+      "#DBEAFE", // Blue-100
+      "#EFF6FF", // Blue-50
+    ],
+    background: "#f8fafc", // Light slate
+    ambientIntensity: 0.8,
+    pointLightBlue: "#1D4ED8",
+  },
+};
+
+// Create the exact Ethereum shape from the CodePen (memoized for performance)
+const createEthereumGeometry = (): THREE.BufferGeometry => {
   const makePart = (pts: number[][]) => {
     const g = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(p[0], p[1], p[2])));
     const index = [0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1];
@@ -95,24 +137,31 @@ const createEthereumGeometry = () => {
   return finalGeometry;
 };
 
+// Memoized geometry instance (created once)
+let ethereumGeometry: THREE.BufferGeometry | null = null;
+const getEthereumGeometry = (): THREE.BufferGeometry => {
+  if (!ethereumGeometry) {
+    ethereumGeometry = createEthereumGeometry();
+  }
+  return ethereumGeometry;
+};
+
 // 3D Ethereum logo with proper geometry
-const FloatingEthLogo = ({ position, speed, scale }: FloatingEthLogoProps) => {
+const FloatingEthLogo = ({ position, speed, scale, isDarkMode }: FloatingEthLogoProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
 
-  // Color distribution from light blue to dark blue
-  const blueShades = [
-    "#87CEEB", // Sky blue (light)
-    "#5DB4E8", // Light blue
-    "#4A9FD8", // Medium light blue
-    "#3A8FD0", // Medium blue
-    "#2A7EC8", // Medium dark blue
-    "#1A6EBF", // Dark blue
-    "#0A5EB7", // Very dark blue
-  ];
+  // Get color scheme based on theme
+  const colorScheme = isDarkMode ? COLOR_SCHEMES.dark : COLOR_SCHEMES.light;
 
-  const color = blueShades[Math.floor(Math.random() * blueShades.length)];
-  const emissive = blueShades[Math.floor(Math.random() * blueShades.length)];
+  // Memoize colors to prevent regeneration on each render
+  const colors = useMemo(() => {
+    const logoColors = colorScheme.logos;
+    return {
+      color: logoColors[Math.floor(Math.random() * logoColors.length)],
+      emissive: logoColors[Math.floor(Math.random() * logoColors.length)],
+    };
+  }, [colorScheme.logos]);
 
   useFrame(() => {
     if (meshRef.current) {
@@ -124,66 +173,88 @@ const FloatingEthLogo = ({ position, speed, scale }: FloatingEthLogoProps) => {
     }
   });
 
+  const geometry = useMemo(() => getEthereumGeometry(), []);
+
   return (
     <mesh
       ref={meshRef}
       position={position}
       scale={[scale * 0.35, scale * 0.35, scale * 0.35]}
-      geometry={createEthereumGeometry()}
+      geometry={geometry}
       castShadow
       receiveShadow
     >
-      <meshPhongMaterial color={color} emissive={emissive} emissiveIntensity={0.2} shininess={100} />
+      <meshPhongMaterial
+        color={colors.color}
+        emissive={colors.emissive}
+        emissiveIntensity={isDarkMode ? 0.2 : 0.1}
+        shininess={100}
+      />
     </mesh>
   );
 };
 
-const Scene3D = () => {
-  const logos = [];
+const Scene3D = ({ isDarkMode }: { isDarkMode: boolean }) => {
+  // Memoize logo configuration to prevent recreation
+  const logos = useMemo<LogoConfig[]>(() => {
+    const logoList: LogoConfig[] = [];
 
-  // Create 3D grid pattern with improved distribution
-  for (let x = -5; x <= 5; x += 3.3) {
-    for (let y = -5; y <= 5; y += 3.3) {
-      for (let z = -3; z <= 0; z += 1.5) {
-        logos.push({
-          id: `${x}-${y}-${z}`,
-          position: [x, y, z] as [number, number, number],
-          speed: Math.random() * 0.5 + 0.2,
-          scale: Math.random() * 0.5 + 0.3,
-        });
+    // Create 3D grid pattern with improved distribution
+    for (let x = -5; x <= 5; x += 3.3) {
+      for (let y = -5; y <= 5; y += 3.3) {
+        for (let z = -3; z <= 0; z += 1.5) {
+          logoList.push({
+            id: `${x}-${y}-${z}`,
+            position: [x, y, z] as [number, number, number],
+            speed: Math.random() * 0.5 + 0.2,
+            scale: Math.random() * 0.5 + 0.3,
+          });
+        }
       }
     }
-  }
+    return logoList;
+  }, []);
+
+  const colorScheme = isDarkMode ? COLOR_SCHEMES.dark : COLOR_SCHEMES.light;
 
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={75} />
 
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={colorScheme.ambientIntensity} />
       <directionalLight
         position={[5, 5, 5]}
-        intensity={1}
+        intensity={isDarkMode ? 1 : 1.2}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#ffffff" castShadow />
-      <pointLight position={[-10, -10, 5]} intensity={0.6} color="#627EEA" />
+      <pointLight position={[10, 10, 10]} intensity={isDarkMode ? 0.8 : 0.6} color="#ffffff" castShadow />
+      <pointLight position={[-10, -10, 5]} intensity={isDarkMode ? 0.6 : 0.4} color={colorScheme.pointLightBlue} />
 
-      <color attach="background" args={["#0f172a"]} />
+      <color attach="background" args={[colorScheme.background]} />
 
       {logos.map(logo => (
-        <FloatingEthLogo key={logo.id} position={logo.position} speed={logo.speed} scale={logo.scale} />
+        <FloatingEthLogo
+          key={logo.id}
+          position={logo.position}
+          speed={logo.speed}
+          scale={logo.scale}
+          isDarkMode={isDarkMode}
+        />
       ))}
     </>
   );
 };
 
 export const Ethereum3DBackground = () => {
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === "dark";
+
   return (
     <div className="fixed inset-0 -z-10 w-full h-screen pointer-events-none">
       <Canvas>
-        <Scene3D />
+        <Scene3D isDarkMode={isDarkMode} />
       </Canvas>
     </div>
   );
