@@ -1,4 +1,3 @@
-// app/builders/[your-0xAddress]/page.tsx
 import Image from "next/image";
 
 export default function BuilderPage() {
