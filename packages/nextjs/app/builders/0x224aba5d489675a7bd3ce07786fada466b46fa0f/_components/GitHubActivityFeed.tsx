@@ -1,40 +1,77 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ActivityItem } from "../types";
-import { getGitHubActivity } from "../utils";
+import { getGitHubActivity } from "../data";
+import { ActivityItem, GitHubEvent } from "../types";
+import { formatTimeAgo } from "../utils";
 import { ActivityFeedCard } from "./ActivityFeedCard";
+import { useQuery } from "@tanstack/react-query";
 
 interface GitHubActivityFeedProps {
   githubHandle: string;
 }
 
-export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) => {
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const hydrateGitHubActivities = (events: GitHubEvent[]): ActivityItem[] => {
+  return events.map((event): ActivityItem => {
+    let title = "";
+    let description = "";
+    let icon = "";
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getGitHubActivity(githubHandle);
-        setActivities(data);
-      } catch (err) {
-        setError("Failed to load GitHub activity");
-        console.error("GitHub activity error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (githubHandle) {
-      fetchActivities();
+    switch (event.type) {
+      case "PushEvent":
+        title = "Pushed to repository";
+        description = event.repo.name;
+        icon = "🔹";
+        break;
+      case "WatchEvent":
+        title = "Starred repository";
+        description = event.repo.name;
+        icon = "⭐";
+        break;
+      case "PullRequestEvent":
+        title = `Pull Request ${event.payload?.action || "opened"}`;
+        description = event.payload?.pull_request?.title || event.repo.name;
+        icon = "🔀";
+        break;
+      case "IssuesEvent":
+        title = `Issue ${event.payload?.action || "opened"}`;
+        description = event.repo.name;
+        icon = "📝";
+        break;
+      case "CreateEvent":
+        title = `Created a ${event.payload?.ref_type === "branch" ? "branch" : "repository"}`;
+        description = event.repo.name;
+        icon = "🆕";
+        break;
+      default:
+        title = event.type;
+        description = event.repo.name;
+        icon = "📋";
     }
-  }, [githubHandle]);
 
-  if (loading) {
+    return {
+      id: event.id,
+      type: "github",
+      title,
+      description,
+      timestamp: formatTimeAgo(event.created_at),
+      url: `https://github.com/${event.repo.name}`,
+      icon,
+    };
+  });
+};
+
+export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) => {
+  const {
+    data: activities,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["github-activity", githubHandle],
+    queryFn: () => getGitHubActivity({ githubHandle }).then(hydrateGitHubActivities),
+    enabled: !!githubHandle,
+  });
+
+  if (isLoading) {
     return (
       <div className="bg-base-100 rounded-3xl shadow-md p-6">
         <h2 className="text-xl font-bold text-base-content mb-4">GitHub Activity</h2>
@@ -62,7 +99,7 @@ export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) =>
         <h2 className="text-xl font-bold text-base-content mb-4">GitHub Activity</h2>
         <div className="w-full h-px bg-base-300 mb-4"></div>
         <div className="text-center py-8">
-          <p className="text-base-content/60">{error}</p>
+          <p className="text-base-content/60">{error?.message}</p>
         </div>
       </div>
     );
@@ -73,7 +110,7 @@ export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) =>
       <h2 className="text-xl font-bold text-base-content mb-4">GitHub Activity</h2>
       <div className="w-full h-px bg-base-300 mb-4"></div>
 
-      {activities.length === 0 ? (
+      {!activities || activities.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-base-content/60">No recent activity found</p>
         </div>

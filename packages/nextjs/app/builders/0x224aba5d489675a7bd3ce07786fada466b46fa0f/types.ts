@@ -1,16 +1,25 @@
 export interface SocialHandles {
-  github?: string;
+  github: string;
   x?: string;
   telegram?: string;
   warpcast?: string;
+  warpcastFid?: number;
 }
 
-export interface BuilderData {
-  ethAddress: string;
-  githubHandle: string;
+export interface SocialLink {
+  name: string;
+  handle?: string;
+  icon: string;
+  url: string;
+  color: string;
+}
+
+export interface BuilderConfig {
+  ethAddress: `0x${string}`;
   handleToSocials: SocialHandles;
   bio: string;
-  warpcastFid?: number;
+  batchContractAddress: `0x${string}`;
+  socialLinks: SocialLink[];
 }
 
 export interface GitHubEvent {
@@ -29,6 +38,7 @@ export interface GitHubEvent {
       title: string;
       number: number;
     };
+    ref_type?: string;
   };
   created_at: string;
 }

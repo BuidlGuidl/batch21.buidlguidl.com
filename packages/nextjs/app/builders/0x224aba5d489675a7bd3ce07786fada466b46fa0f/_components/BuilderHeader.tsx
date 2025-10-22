@@ -1,6 +1,6 @@
 "use client";
 
-import { BuilderData } from "../types";
+import { BuilderConfig } from "../types";
 import { SocialLinks } from "./SocialLinks";
 import { getAddress, isAddress } from "viem";
 import { normalize } from "viem/ens";
@@ -12,12 +12,13 @@ import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 interface BuilderHeaderProps {
-  builderData: BuilderData;
+  builderConfig: BuilderConfig;
 }
 
-export const BuilderHeader = ({ builderData }: BuilderHeaderProps) => {
-  const checkSumAddress = (builderData.ethAddress ? getAddress(builderData.ethAddress) : undefined) as `0x${string}`;
-  // const checkSumAddress = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1" as `0x${string}`;
+export const BuilderHeader = ({ builderConfig }: BuilderHeaderProps) => {
+  const checkSumAddress = (
+    builderConfig.ethAddress ? getAddress(builderConfig.ethAddress) : undefined
+  ) as `0x${string}`;
 
   const { targetNetwork } = useTargetNetwork();
 
@@ -61,7 +62,7 @@ export const BuilderHeader = ({ builderData }: BuilderHeaderProps) => {
                 disableAddressLink={true}
                 blockExplorerAddressLink={ens ? blockExplorerAddressLink : ""}
               >
-                {ens || builderData.githubHandle}
+                {ens || builderConfig.handleToSocials.github}
               </AddressLinkWrapper>
             </span>
           )}
@@ -77,7 +78,7 @@ export const BuilderHeader = ({ builderData }: BuilderHeaderProps) => {
 
         {/* Social Links */}
         <div className="w-full">
-          <SocialLinks socialHandles={builderData.handleToSocials} className="justify-center" />
+          <SocialLinks socialLinks={builderConfig.socialLinks} className="justify-center" />
         </div>
       </div>
     </div>
