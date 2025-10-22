@@ -30,6 +30,43 @@ const socials = [
   { name: "Website", href: "https://www.jopoepl.com/", icon: <GlobeAltIcon className="w-4 h-4" /> },
 ];
 
+const skills = [
+  "Next.js",
+  "React",
+  "Node.js",
+  "MongoDB",
+  "Supabase",
+  "AI",
+  "Zustand",
+  "Solidity",
+  "DeFi",
+  "Open Source",
+];
+
+const projects = [
+  {
+    name: "PrivyAge",
+    href: "https://privyage-moca.vercel.app/",
+    description: "Privacy-first age verification & content gatekeeping using moca chain.",
+  },
+  {
+    name: "DLMM Backtesting Tool",
+    href: "https://dlmm-backtesting-tool.vercel.app/",
+    description: "Liquidity backtesting tool for Solana Saros DeFi pools.",
+  },
+  {
+    name: "Press Analytica",
+    href: "https://pressanalytica.app/",
+    description: "AI-powered analytics platform for publishers.",
+  },
+  {
+    name: "BuidlGuidl #21",
+    href: null,
+    description: "",
+    typing: true,
+  },
+];
+
 export default function ProfileClient() {
   const [copied, setCopied] = useState(false);
 
@@ -84,58 +121,31 @@ export default function ProfileClient() {
           </p>
         </section>
 
-        {/* Projects Section */}
         <section className="mb-8 text-xl border-t border-[#0b6623]/20 dark:border-[#f7b733]/20 pt-6">
           <h2 className="font-semibold text-[#0b6623] dark:text-[#ffd369] mb-3">
             <span className="text-[#0b6623]/80 dark:text-[#f8d56f]/80">$ cd /jopoepl/projects/</span>
           </h2>
+
           <div className="space-y-3 text-sm">
-            <div>
-              <span className="text-[#0b6623] dark:text-[#f8d56f]">-</span>{" "}
-              <a
-                href="https://privyage-moca.vercel.app/"
-                target="_blank"
-                rel="noreferrer"
-                className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]"
-              >
-                PrivyAge
-              </a>
-              <span className="opacity-80">
-                {" "}
-                — Privacy-first age verification & content gatekeeping using moca chain.
-              </span>
-            </div>
-            <div>
-              <span className="text-[#0b6623] dark:text-[#f8d56f]">-</span>{" "}
-              <a
-                href="https://dlmm-backtesting-tool.vercel.app/"
-                target="_blank"
-                rel="noreferrer"
-                className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]"
-              >
-                DLMM Backtesting Tool
-              </a>
-              <span className="opacity-80"> — Liquidity backtesting tool for Solana Saros DeFi pools.</span>
-            </div>
-            <div>
-              <span className="text-[#0b6623] dark:text-[#f8d56f]">-</span>{" "}
-              <a
-                href="https://pressanalytica.app/"
-                target="_blank"
-                rel="noreferrer"
-                className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]"
-              >
-                Press Analytica
-              </a>
-              <span className="opacity-80"> — AI-powered analytics platform for publishers.</span>
-            </div>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-[#0b6623] dark:text-[#f8d56f]">-</span>
-                <span className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]">BuidlGuidl #21</span>
-                <TypingLine />
+            {projects.map((project, index) => (
+              <div key={index}>
+                <span className="text-[#0b6623] dark:text-[#f8d56f]">-</span>{" "}
+                {project.href ? (
+                  <a
+                    href={project.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]"
+                  >
+                    {project.name}
+                  </a>
+                ) : (
+                  <span className="underline hover:text-[#0b6623]/90 dark:hover:text-[#ffd369]">{project.name}</span>
+                )}
+                {project.typing && <TypingLine />}
+                {project.description && <span className="opacity-80"> — {project.description}</span>}
               </div>
-            </div>
+            ))}
           </div>
         </section>
 
@@ -164,18 +174,7 @@ export default function ProfileClient() {
             <span className="text-[#0b6623]/80 dark:text-[#f8d56f]/80 text-xl">$ cd /jopoepl/skills/</span>
           </h2>
           <div className="flex flex-wrap gap-2 text-xs">
-            {[
-              "Next.js",
-              "React",
-              "Node.js",
-              "MongoDB",
-              "Supabase",
-              "AI",
-              "Zustand",
-              "Solidity",
-              "DeFi",
-              "Open Source",
-            ].map(skill => (
+            {skills.map(skill => (
               <span
                 key={skill}
                 className="px-2 py-[2px] rounded border border-[#0b6623]/30 dark:border-[#f7b733]/30 bg-[#e6f3e8] dark:bg-[#0b0a05] text-[#07360b] dark:text-[#ffd369] hover:text-[#0b0a05] dark:hover:text-[#0b0a05] hover:bg-[#0b6623] dark:hover:bg-[#ffd369] transition-colors duration-200"
