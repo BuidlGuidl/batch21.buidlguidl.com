@@ -1,6 +1,3 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
 import localFont from "next/font/local";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { TypingLine } from "./TypingLine";
@@ -61,30 +58,13 @@ const projects = [
   },
   {
     name: "BuidlGuidl #21",
-    href: null,
+    href: "https://speedrunethereum.com/builders/0xea8eE864122361036c5EBE11BF00E6aa953081D8",
     description: "",
     typing: true,
   },
 ];
 
-export default function ProfileClient() {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const t = setTimeout(() => setCopied(false), 1400);
-    return () => clearTimeout(t);
-  }, [copied]);
-
-  const copyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(ADDRESS);
-      setCopied(true);
-    } catch {
-      window.prompt("Copy address:", ADDRESS);
-    }
-  };
-
+export const Profile = () => {
   return (
     <div
       className={`${terminus.className} min-h-screen flex items-center justify-center p-6 bg-[#e9f7ec] dark:bg-[#1a1a1a] text-[#07360b] dark:text-[#f7b733]`}
@@ -104,12 +84,6 @@ export default function ProfileClient() {
             <p className="text-lg opacity-80 mb-2">Full-stack & Web3 Builder | Open Source | DeFi</p>
             <div className="flex items-center gap-3">
               <Address address={ADDRESS} format="short" size="sm" onlyEnsOrAddress />
-              <button
-                onClick={copyAddress}
-                className="text-xs border border-[#0b6623]/30 dark:border-[#f7b733]/30 px-2 py-1 rounded hover:bg-[#0b6623]/10 dark:hover:bg-[#f7b733]/10 transition"
-              >
-                {copied ? "Copied ✓" : "Copy"}
-              </button>
             </div>
           </div>
         </div>
@@ -169,7 +143,7 @@ export default function ProfileClient() {
           </div>
         </section>
 
-        <footer className="mt-10 text-lg text-[#0b6623] dark:text-[#f8d56f]">
+        <footer className="mt-10 text-lg text-[#0b6623] dark:text-[#f7b733]">
           <h2 className="font-semibold text-[#0b6623] dark:text-[#ffd369] mb-3 border-t border-[#0b6623]/20 dark:border-[#f7b733]/20 pt-6 ">
             <span className="text-[#0b6623]/80 dark:text-[#f8d56f]/80 text-xl">$ cd /jopoepl/skills/</span>
           </h2>
@@ -177,18 +151,18 @@ export default function ProfileClient() {
             {skills.map(skill => (
               <span
                 key={skill}
-                className="px-2 py-[2px] rounded border border-[#0b6623]/30 dark:border-[#f7b733]/30 bg-[#e6f3e8] dark:bg-[#0b0a05] text-[#07360b] dark:text-[#ffd369] hover:text-[#0b0a05] dark:hover:text-[#0b0a05] hover:bg-[#0b6623] dark:hover:bg-[#ffd369] transition-colors duration-200"
+                className="px-2 py-[2px] rounded border border-[#0b6623]/30 dark:border-[#f7b733]/30 bg-[#e6f3e8] dark:bg-[#0b0a05] text-[#07360b] dark:text-[#ffd369] transition-colors duration-200"
               >
                 {skill}
               </span>
             ))}
           </div>
           <p className="mt-6 text-xs opacity-70">
-            <span className="text-[#0b6623] dark:text-[#f8d56f]">$</span> Keep shipping, Keep learning
-            <span className="animate-pulse text-[#0b6623] dark:text-[#f8d56f]">█</span>
+            <span className="text-[#0b6623] dark:text-[#f7b733]">$</span> Keep shipping, Keep learning
+            <span className="animate-pulse text-[#0b6623] dark:text-[#f7b733]">█</span>
           </p>
         </footer>
       </div>
     </div>
   );
-}
+};

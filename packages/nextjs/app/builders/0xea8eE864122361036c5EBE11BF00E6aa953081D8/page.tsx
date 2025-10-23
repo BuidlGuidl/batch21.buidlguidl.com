@@ -1,15 +1,17 @@
-import ProfileClient from "./ProfileClient";
-import type { Metadata } from "next";
+import { Profile } from "./Profile";
+import type { Metadata, NextPage } from "next";
 
 export const metadata: Metadata = {
   title: "jopoepl — Builder",
   description: "Terminal-style builder page for jopoepl",
 };
 
-export default function Page() {
+const JopoeplPage: NextPage = () => {
   return (
     <main>
-      <ProfileClient />
+      <Profile />
     </main>
   );
-}
+};
+
+export default JopoeplPage;

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+const dynamicText = "Collaborating, learning & building open-source Web3 projects";
+
 export const TypingLine = () => {
-  const dynamicText = "Collaborating, learning & building open-source Web3 projects";
   const [displayed, setDisplayed] = useState("");
   const [index, setIndex] = useState(0);
   const [started, setStarted] = useState(false);
