@@ -23,7 +23,7 @@ export const TypingLine = () => {
       }, 35); // typing speed (ms per char)
       return () => clearTimeout(timeout);
     }
-  }, [started, index, dynamicText]);
+  }, [started, index]);
 
   return (
     <>
