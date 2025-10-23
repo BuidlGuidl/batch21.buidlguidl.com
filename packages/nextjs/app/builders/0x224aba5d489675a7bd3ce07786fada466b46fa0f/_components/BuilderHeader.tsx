@@ -78,7 +78,7 @@ export const BuilderHeader = ({ builderConfig }: BuilderHeaderProps) => {
 
         {/* Social Links */}
         <div className="w-full">
-          <SocialLinks socialLinks={builderConfig.socialLinks} className="justify-center" />
+          <SocialLinks />
         </div>
       </div>
     </div>

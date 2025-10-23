@@ -1,12 +1,5 @@
-"use client";
-
-import { SocialLink } from "../types";
+import { BUILDER_CONFIG } from "../builder.config";
 import { CodeBracketIcon, NewspaperIcon, PaperAirplaneIcon, XMarkIcon } from "@heroicons/react/24/outline";
-
-interface SocialLinksProps {
-  socialLinks: SocialLink[];
-  className?: string;
-}
 
 const iconMap = {
   github: CodeBracketIcon,
@@ -15,13 +8,15 @@ const iconMap = {
   warpcast: NewspaperIcon,
 };
 
-export const SocialLinks = ({ socialLinks, className = "" }: SocialLinksProps) => {
+const { socialLinks } = BUILDER_CONFIG;
+
+export const SocialLinks: React.FC = () => {
   if (socialLinks.length === 0) {
     return null;
   }
 
   return (
-    <div className={`flex flex-wrap gap-3 ${className}`}>
+    <div className={`flex flex-wrap gap-3 justify-center`}>
       {socialLinks.map(({ name, icon, url, color }) => {
         const IconComponent = iconMap[icon as keyof typeof iconMap];
         return (
