@@ -47,7 +47,7 @@ const COLOR_SCHEMES = {
       "#DBEAFE", // Blue-100
       "#EFF6FF", // Blue-50
     ],
-    background: "#f8fafc", // Light slate
+    background: "#c7ddff", // Light airy blue with a touch more saturation
     ambientIntensity: 0.8,
     pointLightBlue: "#1D4ED8",
   },
