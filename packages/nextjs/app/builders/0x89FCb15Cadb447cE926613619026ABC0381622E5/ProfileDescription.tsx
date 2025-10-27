@@ -23,7 +23,7 @@ export const ProfileDescription = ({ ensName }: ProfileDescriptionProps) => {
 
   return (
     <div className="mb-8">
-      <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-3xl p-6 border-2 border-pink-200 dark:border-pink-700 transition-all duration-300 hover:shadow-lg">
+      <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-3xl p-6 border-2 border-pink-200 dark:border-pink-700 transition-all duration-300">
         <h2 className="text-lg font-bold text-pink-600 dark:text-pink-400 mb-3 flex items-center gap-2">
           <span>💭</span> About
         </h2>

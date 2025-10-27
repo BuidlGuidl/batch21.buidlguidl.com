@@ -18,7 +18,7 @@ export const GraduationBadge = ({ address }: GraduationBadgeProps) => {
   }
 
   return (
-    <div className="absolute -bottom-2 -right-2">
+    <div className="absolute -top-4 -right-4">
       <div
         className={`px-4 py-2 rounded-full text-xs font-bold shadow-lg transition-all duration-300 ${
           isGraduationAllowed
