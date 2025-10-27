@@ -11,7 +11,6 @@ export const GraduationBadge = ({ address }: GraduationBadgeProps) => {
     contractName: "BatchRegistry",
     functionName: "graduationAllowList",
     args: [address],
-    chainId: 42161, // Arbitrum
   });
 
   if (isGraduationAllowed === undefined) {
