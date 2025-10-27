@@ -1,23 +1,14 @@
-const MatrixParticles = () => {
-  const particles: Array<{
-    id: number;
-    left: string;
-    delay: string;
-    duration: string;
-    char: string;
-    size: string;
-  }> = [];
+"use client";
 
-  for (let i = 0; i < 50; i++) {
-    particles.push({
-      id: i,
-      left: `${(i * 2) % 100}%`,
-      delay: `${(i * 0.3) % 5}s`,
-      duration: `${6 + (i % 3)}s`,
-      char: ["0", "1", "{", "}", "[", "]", "→", "λ", "Ξ"][i % 9],
-      size: i % 3 === 0 ? "text-sm" : i % 2 === 0 ? "text-base" : "text-xs",
-    });
-  }
+export function MatrixParticles() {
+  const particles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    left: `${(i * 2) % 100}%`,
+    delay: `${(i * 0.3) % 5}s`,
+    duration: `${6 + (i % 3)}s`,
+    char: ["0", "1", "{", "}", "[", "]", "→", "λ", "Ξ"][i % 9],
+    size: i % 3 === 0 ? "text-sm" : i % 2 === 0 ? "text-base" : "text-xs",
+  }));
 
   return (
     <>
@@ -43,28 +34,25 @@ const MatrixParticles = () => {
         }
       `}</style>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {particles.map(p => (
+        {particles.map(particle => (
           <div
-            key={p.id}
-            className={`absolute ${p.size} font-mono text-primary animate-matrix-fall`}
+            key={particle.id}
+            className={`absolute ${particle.size} font-mono text-primary animate-matrix-fall`}
             style={
               {
-                left: p.left,
+                left: particle.left,
                 top: "-20px",
-                animationDelay: p.delay,
-                animationDuration: p.duration,
-
-                "--matrix-distance": "110vh" as any,
+                animationDelay: particle.delay,
+                animationDuration: particle.duration,
+                "--matrix-distance": "110vh",
                 opacity: 0.7,
-              } as any
+              } as React.CSSProperties
             }
           >
-            {p.char}
+            {particle.char}
           </div>
         ))}
       </div>
     </>
   );
-};
-
-export default MatrixParticles;
+}
