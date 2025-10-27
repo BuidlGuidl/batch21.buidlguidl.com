@@ -57,7 +57,7 @@ export const HeaderMenuLinks = () => {
 /**
  * Site header
  */
-export const Header = () => {
+export const Header = ({ isTransparent = false }: { isTransparent?: boolean }) => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -67,7 +67,9 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
+    <div
+      className={`sticky lg:static top-0 navbar ${isTransparent ? "bg-transparent shadow-none" : "bg-base-100 shadow-md shadow-secondary"} min-h-0 shrink-0 justify-between z-20 px-0 sm:px-2`}
+    >
       <div className="navbar-start w-auto lg:w-1/2">
         <details className="dropdown" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
