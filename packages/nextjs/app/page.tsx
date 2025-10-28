@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { NextPage } from "next";
 import { BugAntIcon, MagnifyingGlassIcon, UserGroupIcon } from "@heroicons/react/24/outline";
@@ -15,11 +16,11 @@ const Home: NextPage = () => {
     <div className="min-h-screen flex flex-col items-center justify-center relative z-10 px-4">
       {/* Welcome Section with Glowing Effect */}
       <div className="text-center mb-12 max-w-2xl">
-        <h1 className="text-6xl md:text-7xl font-bold mb-4 text-white dark:bg-gradient-to-r dark:from-blue-400 dark:via-blue-500 dark:to-blue-600 dark:bg-clip-text dark:text-transparent drop-shadow-lg [text-shadow:0_0_45px_rgba(37,99,235,0.9),0_0_90px_rgba(59,130,246,0.7)] dark:[text-shadow:0_0_30px_rgba(59,130,246,0.5),0_0_60px_rgba(37,99,235,0.3)]">
-          Batch 21
-        </h1>
+        <div className="mb-4 flex justify-center">
+          <Image src="/batch21.png" alt="Batch 21" width={600} height={200} className="drop-shadow-lg" priority />
+        </div>
         <p className="text-xl md:text-2xl text-white dark:text-gray-300 mb-2 [text-shadow:0_0_24px_rgba(148,163,184,0.95)] dark:[text-shadow:none]">
-          Welcome to BuidlGuidl
+          Buidling the future, one block at a time.
         </p>
         <p className="text-base md:text-lg text-white dark:text-gray-400 mb-6 [text-shadow:0_0_20px_rgba(148,163,184,0.9)] dark:[text-shadow:none]">
           Get started by exploring the tools below or check out your batch GitHub repository.
