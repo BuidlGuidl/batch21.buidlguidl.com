@@ -2,7 +2,6 @@ import { BatchCard } from "./_components/BatchCard";
 import { BuilderBio } from "./_components/BuilderBio";
 import { BuilderHeader } from "./_components/BuilderHeader";
 import { GitHubActivityFeed } from "./_components/GitHubActivityFeed";
-import { WarpcastActivityFeed } from "./_components/WarpcastActivityFeed";
 import { BUILDER_CONFIG } from "./builder.config";
 import { NextPage } from "next";
 
@@ -22,16 +21,8 @@ const SantiagoProfilePage: NextPage = () => {
         <div className="w-full md:w-[70%] flex flex-col gap-6">
           {/* Bio Section */}
           <BuilderBio bio={BUILDER_CONFIG.bio} />
-
-          {/* Activity Feeds - 2-column grid on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <GitHubActivityFeed githubHandle={BUILDER_CONFIG.handleToSocials.github} />
-            <WarpcastActivityFeed
-              warpcastHandle={BUILDER_CONFIG.handleToSocials.warpcast}
-              warpcastFid={BUILDER_CONFIG.handleToSocials.warpcastFid}
-              neynarApiKey={process.env.NEXT_PUBLIC_NEYNAR_API_KEY || ""}
-            />
-          </div>
+          {/* GitHub Activity Feed */}
+          <GitHubActivityFeed githubHandle={BUILDER_CONFIG.handleToSocials.github} />
         </div>
       </div>
     </div>
