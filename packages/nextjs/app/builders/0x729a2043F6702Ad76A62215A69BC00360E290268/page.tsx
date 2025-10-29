@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { MatrixParticles } from "./MatrixParticles";
@@ -45,7 +43,7 @@ const SubhankarPage: NextPage = () => {
                 <div className="flex flex-wrap gap-1 justify-center text-xs">
                   <span className="badge badge-primary badge-sm">Product Designer</span>
                   <span className="badge badge-secondary badge-sm">Blockchain Dev</span>
-                  <span className="badge badge-accent badge-sm">Web3 Builder</span>
+                  <span className="badge badge-accent badge-sm">AI</span>
                 </div>
                 <div className="mt-3 w-full">
                   <Address address={BUILDER_ADDRESS} />
@@ -59,7 +57,7 @@ const SubhankarPage: NextPage = () => {
                 <h2 className="card-title text-lg text-base-content">Tech Stack</h2>
                 <div className="flex flex-wrap gap-2">
                   {SKILLS.map(skill => (
-                    <span key={skill} className="badge badge-outline badge-sm hover:badge-primary transition-colors">
+                    <span key={skill} className="badge badge-outline badge-sm transition-colors">
                       {skill}
                     </span>
                   ))}
@@ -93,15 +91,12 @@ const SubhankarPage: NextPage = () => {
                     <span>Building and designing decentralized applications for SaaS and healthcare</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary mt-1">▹</span>
                     <span>Bridging Web3 with traditional industries through innovative product solutions</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary mt-1">▹</span>
                     <span>Mastering smart contract development and DeFi protocols</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary mt-1">▹</span>
                     <span>Contributing to BuidlGuidl Batch 21 and learning Web3 development</span>
                   </li>
                 </ul>
