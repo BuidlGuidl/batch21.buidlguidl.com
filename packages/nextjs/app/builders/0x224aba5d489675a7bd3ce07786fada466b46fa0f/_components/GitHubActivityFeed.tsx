@@ -1,75 +1,69 @@
 "use client";
 
 import { getGitHubActivity } from "../data";
-import { ActivityItem, GitHubEvent } from "../types";
+import { GitHubEvent } from "../types";
 import { formatTimeAgo } from "../utils";
-import { ActivityFeedCard } from "./ActivityFeedCard";
 import { useQuery } from "@tanstack/react-query";
 
 interface GitHubActivityFeedProps {
   githubHandle: string;
 }
 
-const hydrateGitHubActivities = (events: GitHubEvent[]): ActivityItem[] => {
-  return events.map((event): ActivityItem => {
-    let title = "";
-    let description = "";
-    let icon = "";
-
-    switch (event.type) {
-      case "PushEvent":
-        title = "Pushed to repository";
-        description = event.repo.name;
-        icon = "🔹";
-        break;
-      case "WatchEvent":
-        title = "Starred repository";
-        description = event.repo.name;
-        icon = "⭐";
-        break;
-      case "PullRequestEvent":
-        title = `Pull Request ${event.payload?.action || "opened"}`;
-        description = event.payload?.pull_request?.title || event.repo.name;
-        icon = "🔀";
-        break;
-      case "IssuesEvent":
-        title = `Issue ${event.payload?.action || "opened"}`;
-        description = event.repo.name;
-        icon = "📝";
-        break;
-      case "CreateEvent":
-        title = `Created a ${event.payload?.ref_type === "branch" ? "branch" : "repository"}`;
-        description = event.repo.name;
-        icon = "🆕";
-        break;
-      default:
-        title = event.type;
-        description = event.repo.name;
-        icon = "📋";
-    }
-
-    return {
-      id: event.id,
-      type: "github",
-      title,
-      description,
-      timestamp: formatTimeAgo(event.created_at),
-      url: `https://github.com/${event.repo.name}`,
-      icon,
-    };
-  });
-};
-
 export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) => {
   const {
-    data: activities,
+    data: events,
     isLoading,
     error,
   } = useQuery({
     queryKey: ["github-activity", githubHandle],
-    queryFn: () => getGitHubActivity({ githubHandle }).then(hydrateGitHubActivities),
+    queryFn: () => getGitHubActivity({ githubHandle }),
     enabled: !!githubHandle,
   });
+
+  const getEventIcon = (event: GitHubEvent): string => {
+    switch (event.type) {
+      case "PushEvent":
+        return "🔹";
+      case "WatchEvent":
+        return "⭐";
+      case "PullRequestEvent":
+        return "🔀";
+      case "IssuesEvent":
+        return "📝";
+      case "CreateEvent":
+        return "🆕";
+      default:
+        return "📋";
+    }
+  };
+
+  const getEventTitle = (event: GitHubEvent): string => {
+    switch (event.type) {
+      case "PushEvent":
+        return "Pushed to repository";
+      case "WatchEvent":
+        return "Starred repository";
+      case "PullRequestEvent":
+        return `Pull Request ${event.payload?.action || "opened"}`;
+      case "IssuesEvent":
+        return `Issue ${event.payload?.action || "opened"}`;
+      case "CreateEvent":
+        return `Created a ${event.payload?.ref_type === "branch" ? "branch" : "repository"}`;
+      default:
+        return event.type;
+    }
+  };
+
+  const getEventDescription = (event: GitHubEvent): string => {
+    if (event.type === "PullRequestEvent" && event.payload?.pull_request?.title) {
+      return event.payload.pull_request.title;
+    }
+    return event.repo.name;
+  };
+
+  const getEventUrl = (event: GitHubEvent): string => {
+    return `https://github.com/${event.repo.name}`;
+  };
 
   if (isLoading) {
     return (
@@ -110,14 +104,36 @@ export const GitHubActivityFeed = ({ githubHandle }: GitHubActivityFeedProps) =>
       <h2 className="text-xl font-bold text-base-content mb-4">GitHub Activity</h2>
       <div className="w-full h-px bg-base-300 mb-4"></div>
 
-      {!activities || activities.length === 0 ? (
+      {!events || events.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-base-content/60">No recent activity found</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {activities.map(activity => (
-            <ActivityFeedCard key={activity.id} activity={activity} />
+          {events.map(event => (
+            <div
+              key={event.id}
+              className="p-4 bg-base-100 rounded-lg border border-base-300 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-2xl flex-shrink-0">{getEventIcon(event)}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-base-content text-sm">{getEventTitle(event)}</h4>
+                    <span className="text-xs text-base-content/70">{formatTimeAgo(event.created_at)}</span>
+                  </div>
+                  <p className="text-sm text-base-content/80 mb-2 line-clamp-2">{getEventDescription(event)}</p>
+                  <a
+                    href={getEventUrl(event)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 transition-colors"
+                  >
+                    View on GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
