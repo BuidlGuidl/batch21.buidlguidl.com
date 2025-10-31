@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, MagnifyingGlassIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, ClockIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
           Buidling the future, one block at a time.
         </p>
         <p className="text-base md:text-lg text-white dark:text-gray-400 mb-6 [text-shadow:0_0_20px_rgba(148,163,184,0.9)] dark:[text-shadow:none]">
-          Get started by exploring the tools below or check out your batch GitHub repository.
+          Welcome to the app-based testimonial about our participation in the Speedrun Ethereum!
         </p>
 
         {/* Builders Counter */}
@@ -50,24 +50,24 @@ const Home: NextPage = () => {
                 Debug Contracts
               </h3>
               <p className="text-sm text-white dark:text-gray-400 group-hover:text-white dark:group-hover:text-gray-300 transition-colors [text-shadow:0_0_12px_rgba(148,163,184,0.75)] dark:[text-shadow:none]">
-                Tinker with your smart contracts and test functions
+                Interact with the smart contracts behind our batch
               </p>
             </div>
           </div>
         </Link>
 
-        <Link href="/blockexplorer" passHref>
+        <Link href="/timeline" passHref>
           <div className="group relative p-8 rounded-2xl backdrop-blur-sm border border-slate-900/50 dark:border-white/10 bg-slate-800/45 dark:bg-white/5 hover:bg-slate-800/65 dark:hover:bg-white/10 transition-all duration-300 hover:border-blue-500/50 cursor-pointer h-full flex flex-col items-center justify-center gap-4">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative">
-              <MagnifyingGlassIcon className="h-12 w-12 text-white dark:text-blue-400 group-hover:text-white dark:group-hover:text-blue-300 transition-colors" />
+              <ClockIcon className="h-12 w-12 text-white dark:text-blue-400 group-hover:text-white dark:group-hover:text-blue-300 transition-colors" />
             </div>
             <div className="relative text-center">
               <h3 className="text-lg font-semibold text-white dark:text-white mb-2 [text-shadow:0_0_16px_rgba(148,163,184,0.8)] dark:[text-shadow:none]">
-                Block Explorer
+                Timeline
               </h3>
               <p className="text-sm text-white dark:text-gray-400 group-hover:text-white dark:group-hover:text-gray-300 transition-colors [text-shadow:0_0_12px_rgba(148,163,184,0.75)] dark:[text-shadow:none]">
-                Explore your local blockchain transactions
+                Explore our batch events timeline
               </p>
             </div>
           </div>
