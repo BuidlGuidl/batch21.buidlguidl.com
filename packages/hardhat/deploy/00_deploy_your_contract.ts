@@ -1,52 +1,49 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
 
-// Update with your Batch number
 const BATCH_NUMBER = "21";
+const BUILDER_EOA = "0xE9CdfADE5Da8bAFf05C6a8ceD2eE14eEB77111E6"; // your wallet
+const ARBITRUM_BATCH_REGISTRY = "0x23E4943145668C06B55Bbc7cDEEEc6353687305B"; // official Arbitrum address (or localhost if testing)
 
-/**
- * Deploys a contract named "deployYourContract" using the deployer account and
- * constructor arguments set to the deployer address
- *
- * @param hre HardhatRuntimeEnvironment object.
- */
-const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  /*
-    On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const { deployments, getNamedAccounts, network, ethers } = hre;
+  const { deploy, log } = deployments;
+  const { deployer } = await getNamedAccounts();
 
-    When deploying to live networks (e.g `yarn deploy --network sepolia`), the deployer account
-    should have sufficient balance to pay for the gas fees for contract creation.
+  const isLocal = network.name === "hardhat" || network.name === "localhost";
 
-    You can generate a random account with `yarn generate` or `yarn account:import` to import your
-    existing PK which will fill DEPLOYER_PRIVATE_KEY_ENCRYPTED in the .env file (then used on hardhat.config.ts)
-    You can run the `yarn account` command to check your balance in every network.
-  */
-  const { deployer } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
+  let batchRegistryAddress: string;
 
-  await deploy("BatchRegistry", {
+  if (isLocal) {
+    const batch = await deploy("BatchRegistry", {
+      from: deployer,
+      args: [deployer, BATCH_NUMBER],
+      log: true,
+      autoMine: true,
+    });
+
+    batchRegistryAddress = batch.address;
+    log(`✅ Local BatchRegistry => ${batchRegistryAddress}`);
+
+    const registry = await ethers.getContractAt("BatchRegistry", batchRegistryAddress);
+    await (await registry.updateAllowList([BUILDER_EOA], [true])).wait();
+    log(`✅ Added ${BUILDER_EOA} to local allowList`);
+  } else {
+    batchRegistryAddress = ARBITRUM_BATCH_REGISTRY;
+    log(`✅ Using Arbitrum BatchRegistry => ${batchRegistryAddress}`);
+  }
+
+  // === Deploy CheckIn with you as the owner ===
+  const checkIn = await deploy("CheckIn", {
     from: deployer,
-    // Contract constructor arguments
-    args: [deployer, BATCH_NUMBER],
+    args: [batchRegistryAddress, BUILDER_EOA], // registry + your wallet
     log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
 
-  // Get the deployed contract to interact with it after deploying.
-  const batchRegistry = await hre.ethers.getContract<Contract>("BatchRegistry", deployer);
-  console.log("\nBatchRegistry deployed to:", await batchRegistry.getAddress());
-  console.log("Remember to update the allow list!\n");
-
-  // The GraduationNFT contract is deployed on the BatchRegistry constructor.
-  const batchGraduationNFTAddress = await batchRegistry.batchGraduationNFT();
-  console.log("BatchGraduation NFT deployed to:", batchGraduationNFTAddress, "\n");
+  log(`✅ CheckIn deployed at => ${checkIn.address}`);
+  log(`👑 Owner set to => ${BUILDER_EOA}`);
 };
 
-export default deployYourContract;
-
-// Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags YourContract
-deployYourContract.tags = ["BatchRegistry"];
+export default func;
+func.tags = ["CheckIn"];
