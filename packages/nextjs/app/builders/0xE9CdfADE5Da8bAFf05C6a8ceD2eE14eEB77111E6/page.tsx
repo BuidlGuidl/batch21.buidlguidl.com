@@ -1,18 +1,19 @@
 import Image from "next/image";
+import { NextPage } from "next";
 
-export default function BuilderPage() {
-  const builder = {
-    name: "sye",
-    address: "0xE9CdfADE5Da8bAFf05C6a8ceD2eE14eEB77111E6",
-    bio: "Builder @BuidlGuidl | Learning Solidity, ML & Web3. luvv exploring new shit!",
-    avatar: "buidlguidl.jpg",
-    socials: {
-      twitter: "https://x.com/syethesc1entist",
-      github: "https://github.com/syethescientist",
-      instagram: "https://instagram.com/syethescientist",
-    },
-  };
+const builder = {
+  name: "sye",
+  address: "0xE9CdfADE5Da8bAFf05C6a8ceD2eE14eEB77111E6",
+  bio: "Builder @BuidlGuidl | Learning Solidity, ML & Web3. luvv exploring new shit!",
+  avatar: "buidlguidl.jpg",
+  socials: {
+    twitter: "https://x.com/syethesc1entist",
+    github: "https://github.com/syethescientist",
+    instagram: "https://instagram.com/syethescientist",
+  },
+};
 
+const SyeBuilderPage: NextPage = () => {
   return (
     <main className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-6 space-y-6">
       {/* Avatar */}
@@ -50,4 +51,6 @@ export default function BuilderPage() {
       </div>
     </main>
   );
-}
+};
+
+export default SyeBuilderPage;
