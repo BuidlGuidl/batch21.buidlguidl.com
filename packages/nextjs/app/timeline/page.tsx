@@ -1,42 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BatchTimeline, type TimelineEvent } from "~~/components/BatchTimeline";
+import { BatchTimeline } from "~~/components/BatchTimeline";
+import { useTimelineEvents } from "~~/hooks";
+
+const BATCH_REGISTRY_ADDRESS = "0x23E4943145668C06B55Bbc7cDEEEc6353687305B" as const;
+const BATCH_GRADUATION_NFT_ADDRESS = "0x23E4943145668C06B55Bbc7cDEEEc6353687305B" as const;
+const GITHUB_REPO_OWNER = "BuidlGuidl";
+const GITHUB_REPO_NAME = "batch21.buidlguidl.com";
 
 const TimelinePage = () => {
-  const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTimeline = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/timeline", {
-          method: "GET",
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch timeline");
-        }
-
-        const data = await res.json();
-        setEvents(data);
-      } catch (err) {
-        console.error("Error fetching timeline:", err);
-        setError(err instanceof Error ? err.message : "Failed to load timeline");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTimeline();
-  }, []);
+  const { events, isLoading, error } = useTimelineEvents({
+    batchRegistryAddress: BATCH_REGISTRY_ADDRESS,
+    graduationNFTAddress: BATCH_GRADUATION_NFT_ADDRESS,
+    githubOwner: GITHUB_REPO_OWNER,
+    githubRepo: GITHUB_REPO_NAME,
+    githubToken: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
+  });
 
   return (
     <div>
-      {loading && (
+      {isLoading && (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="loading loading-spinner loading-lg mb-4"></div>
@@ -45,13 +28,13 @@ const TimelinePage = () => {
         </div>
       )}
 
-      {error && !loading && (
+      {error && !isLoading && (
         <div className="alert alert-error m-4">
-          <span>{error}</span>
+          <span>{error.message}</span>
         </div>
       )}
 
-      {!loading && !error && <BatchTimeline events={events} />}
+      {!isLoading && !error && <BatchTimeline events={events} />}
     </div>
   );
 };

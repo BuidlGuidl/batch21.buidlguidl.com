@@ -3,16 +3,11 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Address } from "~~/components/scaffold-eth";
+import { TimelineEvent } from "~~/hooks";
 
-export type TimelineEvent = {
-  type: "on-chain-checkin" | "graduation-nft" | "pr-merged";
-  date: string;
-  title: string;
-  description: string;
-  author?: string;
-  address?: string;
-  link?: string;
-};
+interface BatchTimelineProps {
+  events: TimelineEvent[];
+}
 
 const typeStyles: Record<
   TimelineEvent["type"],
@@ -47,7 +42,7 @@ const typeStyles: Record<
   },
 };
 
-export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
+export const BatchTimeline = ({ events }: BatchTimelineProps) => {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -103,7 +98,6 @@ export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
                 flex flex-row items-center justify-start md:flex-col md:items-center
               "
             >
-              {/* Dot (left on mobile, top on desktop) */}
               <span
                 className={`
                   w-4 h-4 rounded-full border-4 border-white block
@@ -112,7 +106,6 @@ export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
                   md:mb-2 mr-2 md:mr-0
                 `}
               />
-              {/* Label (right on mobile, below dot on desktop) */}
               <div
                 className="
                   text-xs px-3 py-1 rounded-full bg-yellow-500/90 text-white font-semibold shadow whitespace-nowrap
@@ -125,7 +118,7 @@ export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
             <ul className="space-y-16 md:space-y-24 mt-16">
               {sorted.map((event, index) => {
                 const style = typeStyles[event.type];
-                const isLeft = index % 2 === 0;
+                const isLeft = index % 2 !== 0;
                 const isNewest = index === newestIndex;
                 return (
                   <li
@@ -253,7 +246,6 @@ export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
                 flex flex-row items-center md:flex-col md:items-center
               "
             >
-              {/* Dot (left, mobile and desktop) */}
               <span
                 className={`
                   w-4 h-4 rounded-full border-4 border-white block
@@ -262,7 +254,6 @@ export const BatchTimeline = ({ events }: { events: TimelineEvent[] }) => {
                   md:mb-2 mr-2 md:mr-0
                 `}
               />
-              {/* Label (right, mobile; below dot, desktop) */}
               <div
                 className="
                   text-xs px-3 py-1 rounded-full bg-green-500/90 text-white font-semibold shadow whitespace-nowrap
