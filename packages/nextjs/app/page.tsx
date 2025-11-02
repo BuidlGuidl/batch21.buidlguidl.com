@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Batch21Graduates } from "../components/Batch21Graduates";
 import type { NextPage } from "next";
 import { BugAntIcon, MagnifyingGlassIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
@@ -19,6 +20,7 @@ const Home: NextPage = () => {
         <div className="mb-4 flex justify-center">
           <Image src="/batch21.png" alt="Batch 21" width={600} height={200} className="drop-shadow-lg" priority />
         </div>
+        <Batch21Graduates />
         <p className="text-xl md:text-2xl text-white dark:text-gray-300 mb-2 [text-shadow:0_0_24px_rgba(148,163,184,0.95)] dark:[text-shadow:none]">
           Buidling the future, one block at a time.
         </p>

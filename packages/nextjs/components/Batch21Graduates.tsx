@@ -1,0 +1,205 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { usePublicClient } from "wagmi";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { contracts } from "~~/utils/scaffold-eth/contract";
+
+type Graduate = {
+  tokenId: number;
+  owner: string;
+  tokenURI?: string;
+  name?: string;
+  image?: string;
+};
+
+const MAX_SCAN = 20;
+
+function shortAddress(addr: string) {
+  if (!addr) return "";
+  return addr.length > 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : addr;
+}
+function decodeBase64Json(dataUrl: string): { name?: string; image?: string } | undefined {
+  try {
+    const prefix = "data:application/json;base64,";
+    if (!dataUrl || !dataUrl.startsWith(prefix)) return undefined;
+    const b64 = dataUrl.slice(prefix.length);
+    const jsonStr = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("utf-8");
+    const json = JSON.parse(jsonStr);
+    return { name: json.name, image: json.image };
+  } catch {
+    return undefined;
+  }
+}
+
+export const Batch21Graduates: React.FC = () => {
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork?.id });
+
+  const nftEntry = contracts?.[targetNetwork?.id]?.BatchGraduationNFT;
+  const nftAddress = nftEntry?.address as `0x${string}` | undefined;
+
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [graduates, setGraduates] = useState<Graduate[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const scan = useCallback(async () => {
+    if (!publicClient || !nftAddress) return;
+
+    setLoading(true);
+    setError(null);
+
+    const found: Graduate[] = [];
+    const abi = [
+      "function ownerOf(uint256 tokenId) view returns (address)",
+      "function tokenURI(uint256 tokenId) view returns (string)",
+    ];
+
+    try {
+      for (let id = 1; id <= MAX_SCAN; id++) {
+        let ownerRaw: `0x${string}` | undefined;
+        try {
+          ownerRaw = (await publicClient.readContract({
+            address: nftAddress,
+            abi,
+            functionName: "ownerOf",
+            args: [BigInt(id)],
+          })) as `0x${string}`;
+        } catch {
+          break;
+        }
+
+        const owner = String(ownerRaw).toLowerCase();
+
+        let rawTokenURI: string | undefined;
+        try {
+          rawTokenURI = (await publicClient.readContract({
+            address: nftAddress,
+            abi,
+            functionName: "tokenURI",
+            args: [BigInt(id)],
+          })) as string;
+        } catch {
+          rawTokenURI = undefined;
+        }
+
+        const parsed = decodeBase64Json(rawTokenURI ?? "");
+        const name = parsed?.name;
+        const image = parsed?.image;
+
+        found.push({
+          tokenId: id,
+          owner,
+          tokenURI: rawTokenURI,
+          name,
+          image,
+        });
+      }
+
+      setGraduates(found);
+      setLastUpdated(new Date());
+    } catch (e: any) {
+      setError(String(e?.message ?? e));
+    } finally {
+      setLoading(false);
+    }
+  }, [publicClient, nftAddress]);
+
+  useEffect(() => {
+    if (nftAddress && publicClient) {
+      scan();
+    }
+  }, [nftAddress, publicClient, scan]);
+
+  const handleRefresh = async () => {
+    setError(null);
+    await scan();
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto p-4 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-gray-900/90 drop-shadow-sm">
+          <span className="text-3xl md:text-4xl">🎓</span>
+          <span>Hall of Fame </span>
+          <span className="hidden sm:inline text-indigo-600 font-semibold">Batch #21</span>
+          <span className="hidden sm:inline">Graduates</span>
+        </h3>
+        <div>
+          <button className="btn btn-sm btn-outline" onClick={handleRefresh} disabled={loading}>
+            {loading ? "Refreshing…" : "Refresh"}
+          </button>
+          {lastUpdated && (
+            <div className="text-[11px] mt-1 flex items-center gap-1 italic">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+              Updated {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </div>
+          )}{" "}
+        </div>
+      </div>
+
+      {!nftAddress ? (
+        <div className="text-sm text-muted">NFT contract not found in runtime registry</div>
+      ) : loading ? (
+        <div className="text-sm">Scanning for minted tokens…</div>
+      ) : error ? (
+        <div className="text-red-600 text-sm">Error: {error}</div>
+      ) : graduates.length === 0 ? (
+        <div className="text-sm">No graduates found yet.</div>
+      ) : (
+        <div
+          className="
+            mt-4
+            max-h-[60vh]   
+            md:max-h-[55vh] 
+            sm:max-h-[50vh] 
+            overflow-y-auto
+            scroll-smooth
+            pr-2            
+            -mr-2         
+          "
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-stretch">
+            {graduates.map(g => {
+              const avatarUrl = g.image || `https://api.dicebear.com/6.x/identicon/svg?seed=${g.owner}`;
+              return (
+                <Link key={g.tokenId} href={`/builders/${g.owner}`} className="block w-full h-full">
+                  <div
+                    className="
+                      relative bg-white border border-gray-200 rounded-xl 
+                      p-3 sm:p-4               /* smaller padding on xs */
+                      flex flex-col items-center h-full
+                      shadow-[0_0_15px_rgba(99,102,241,0.08)]
+                      transition-all duration-300
+                      hover:shadow-[0_0_25px_rgba(99,102,241,0.18)]
+                      hover:-translate-y-1 hover:border-indigo-300
+                    "
+                  >
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-indigo-200 mb-2 sm:mb-3 shadow-sm transition">
+                      <img src={avatarUrl} alt={`avatar ${g.owner}`} className="w-full h-full object-cover" />
+                    </div>
+
+                    <div
+                      className="
+                        text-sm sm:text-sm md:text-base font-semibold text-gray-800 
+                        group-hover:text-indigo-600 transition
+                        max-w-[140px] sm:max-w-[160px] text-center
+                        whitespace-nowrap overflow-hidden text-ellipsis
+                      "
+                    >
+                      {shortAddress(g.owner)}
+                    </div>
+
+                    <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">{g.name}</div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
