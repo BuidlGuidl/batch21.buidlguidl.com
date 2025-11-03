@@ -17,7 +17,7 @@ const query = gql`
 `;
 
 interface BuildersListProps {
-  buildersPages: Set<string>;
+  buildersPages: { [k: string]: string };
 }
 
 interface BuilderQueryResponse {
@@ -47,8 +47,8 @@ export default function BuildersList({ buildersPages }: BuildersListProps) {
               <Address onlyEnsOrAddress={true} address={item["builder"]} />
             </div>
 
-            {buildersPages.has(item["builder"]) ? (
-              <Link className="btn btn-secondary btn-sm self-end" href={`/builders/${item["builder"]}`}>
+            {buildersPages.hasOwnProperty(item["builder"]) ? (
+              <Link className="btn btn-secondary btn-sm self-end" href={`/builders/${buildersPages[item["builder"]]}`}>
                 <p>Builder Page</p>
               </Link>
             ) : (
