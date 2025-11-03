@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { TimelineEvent, useCheckInEvents } from "./useCheckInEvents";
+import { TimelineEvent } from "./types";
 import { useGitHubPREvents } from "./useGitHubPREvents";
-import { useGraduationNFTEvents } from "./useGraduationNFTEvents";
+import { useCheckInEventsFromSubgraph, useGraduationNFTEventsFromSubgraph } from "./useSubgraphEvents";
 
+// Export TimelineConfig explicitly here
 export interface TimelineConfig {
-  batchRegistryAddress: `0x${string}`;
-  graduationNFTAddress: `0x${string}`;
   githubOwner: string;
   githubRepo: string;
   githubToken?: string;
+  batchRegistryAddress?: string;
+  graduationNFTAddress?: string;
 }
 
 interface UseTimelineEventsReturn {
@@ -22,30 +23,29 @@ export const useTimelineEvents = (config: TimelineConfig): UseTimelineEventsRetu
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const checkInResult = useCheckInEvents(config.batchRegistryAddress);
-  const graduationNFTResult = useGraduationNFTEvents(config.graduationNFTAddress);
+  const checkInResult = useCheckInEventsFromSubgraph();
+  const graduationNFTResult = useGraduationNFTEventsFromSubgraph();
   const gitHubPRResult = useGitHubPREvents(config.githubOwner, config.githubRepo, config.githubToken);
 
   useEffect(() => {
-    const isAnyLoading = checkInResult.isLoading || graduationNFTResult.isLoading || gitHubPRResult.isLoading;
+    const loading = checkInResult.isLoading || graduationNFTResult.isLoading || gitHubPRResult.isLoading;
 
-    const collectedError = checkInResult.error || graduationNFTResult.error || gitHubPRResult.error || null;
+    const errors = checkInResult.error || graduationNFTResult.error || gitHubPRResult.error || null;
 
-    setIsLoading(isAnyLoading);
-    setError(collectedError);
+    setIsLoading(loading);
+    setError(errors);
 
-    const mergedEvents: TimelineEvent[] = [
-      ...checkInResult.events,
-      ...graduationNFTResult.events,
-      ...gitHubPRResult.events,
-    ];
-
-    mergedEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    setAllEvents(mergedEvents);
+    if (!loading) {
+      const merged: TimelineEvent[] = [
+        ...(checkInResult.data ?? []),
+        ...(graduationNFTResult.data ?? []),
+        ...(gitHubPRResult.events ?? []),
+      ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      setAllEvents(merged);
+    }
   }, [
-    checkInResult.events,
-    graduationNFTResult.events,
+    checkInResult.data,
+    graduationNFTResult.data,
     gitHubPRResult.events,
     checkInResult.isLoading,
     graduationNFTResult.isLoading,

@@ -161,6 +161,7 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
                           wordBreak: "break-word",
                           whiteSpace: "normal",
                           overflowWrap: "break-word",
+                          backdropFilter: "blur(12px)",
                         }}
                       >
                         <div className="p-5 md:p-6">

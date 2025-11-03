@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TimelineEvent } from "./useCheckInEvents";
+import { TimelineEvent } from "./types";
 
 interface UseGitHubPREventsReturn {
   events: TimelineEvent[];
