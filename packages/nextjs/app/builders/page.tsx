@@ -7,10 +7,7 @@ import BuildersList from "~~/components/BuildersList";
 const query = gql`
   {
     checkedIns {
-      id
-      first
       builder
-      checkInContract
     }
   }
 `;
@@ -19,7 +16,7 @@ const url = "https://api.studio.thegraph.com/query/1713875/buidlguidl-batch-21/v
 async function BuildersPage() {
   const buildersPath = path.join(process.cwd(), "app", "builders");
   const files = await fs.readdir(buildersPath, { withFileTypes: true });
-  const buildersPages = files.filter(file => file.isDirectory()).map(dir => dir.name);
+  const buildersPages = new Set(files.filter(file => file.isDirectory()).map(dir => dir.name.toLowerCase()));
 
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
