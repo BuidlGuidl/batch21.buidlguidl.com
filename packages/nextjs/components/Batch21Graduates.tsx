@@ -178,6 +178,7 @@ export const Batch21Graduates: React.FC = () => {
                     "
                   >
                     <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-indigo-200 mb-2 sm:mb-3 shadow-sm transition">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={avatarUrl} alt={`avatar ${g.owner}`} className="w-full h-full object-cover" />
                     </div>
 
