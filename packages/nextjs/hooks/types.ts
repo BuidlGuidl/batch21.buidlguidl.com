@@ -1,28 +1,25 @@
-export type TimelineEvent =
+type BaseTimelineEvent = {
+  date: string;
+  title: string;
+  description: string;
+  link?: string;
+};
+
+type VariantTimelineEvent =
   | {
       type: "on-chain-checkin";
-      date: string;
-      title: string;
-      description: string;
       address?: string;
-      link?: string;
       author?: never;
     }
   | {
       type: "graduation-nft";
-      date: string;
-      title: string;
-      description: string;
       address?: string;
-      link?: string;
       author?: never;
     }
   | {
       type: "pr-merged";
-      date: string;
-      title: string;
-      description: string;
       author?: string;
       address?: never;
-      link?: string;
     };
+
+export type TimelineEvent = VariantTimelineEvent & BaseTimelineEvent;

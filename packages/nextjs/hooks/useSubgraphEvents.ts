@@ -56,38 +56,32 @@ export function useCheckInEventsFromSubgraph() {
     queryFn: async () => {
       const { checkedIns } = await request<{ checkedIns: RawCheckIn[] }>(SUBGRAPH_URL, CHECKED_IN_EVENTS_QUERY);
 
-      // Group events by normalized (lowercase) builder address
-      const eventsByBuilder: Record<string, TimelineEvent[]> = {};
-
       const allEvents: TimelineEvent[] = (checkedIns ?? []).map(
         (event: RawCheckIn): TimelineEvent => ({
           type: "on-chain-checkin",
           date: event.blockTimestamp ? new Date(Number(event.blockTimestamp) * 1000).toISOString() : "",
-          title: "", // Set below
+          title: "Check-in 🎯",
           description: `Builder ${event.builder} checked in.`,
           address: event.builder,
           link: event.transactionHash ? `https://arbiscan.io/tx/${event.transactionHash}` : undefined,
         }),
       );
 
-      allEvents.forEach(event => {
-        const normalizedAddress = event.address ? event.address.toLowerCase() : "";
-        if (!normalizedAddress) return;
-        if (!eventsByBuilder[normalizedAddress]) {
-          eventsByBuilder[normalizedAddress] = [];
-        }
-        eventsByBuilder[normalizedAddress].push(event);
-      });
-
-      // Assign titles per builder: only first event is "First Check-in"
-      const correctedEvents: TimelineEvent[] = [];
-      Object.values(eventsByBuilder).forEach(builderEvents => {
-        builderEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        builderEvents.forEach((ev, i) => {
-          ev.title = i === 0 ? "Check-in 🎯" : "Check-in";
-          correctedEvents.push(ev);
-        });
-      });
+      // Sort builder events chronologically and flatten
+      const correctedEvents: TimelineEvent[] = Object.values(
+        allEvents.reduce(
+          (acc, event) => {
+            const normalizedAddress = event.address ? event.address.toLowerCase() : "";
+            if (!normalizedAddress) return acc;
+            if (!acc[normalizedAddress]) {
+              acc[normalizedAddress] = [];
+            }
+            acc[normalizedAddress].push(event);
+            return acc;
+          },
+          {} as Record<string, TimelineEvent[]>,
+        ),
+      ).flatMap(builderEvents => builderEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
 
       return correctedEvents;
     },
