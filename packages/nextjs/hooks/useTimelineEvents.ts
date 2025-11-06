@@ -29,9 +29,11 @@ export const useTimelineEvents = (config: TimelineConfig) => {
     );
   }, [checkInResult.data, graduationNFTResult.data, gitHubPRResult.data]);
 
-  const isLoading = checkInResult.isLoading || graduationNFTResult.isLoading || gitHubPRResult.isPending;
+  // Return loading only if subgraph queries are loading (don't wait for GitHub)
+  const isLoading = checkInResult.isLoading || graduationNFTResult.isLoading;
 
-  const error = checkInResult.error || graduationNFTResult.error || gitHubPRResult.error || null;
+  // Show error only from subgraph queries (GitHub errors won't block display)
+  const error = checkInResult.error || graduationNFTResult.error;
 
   return { data, isLoading, error };
 };

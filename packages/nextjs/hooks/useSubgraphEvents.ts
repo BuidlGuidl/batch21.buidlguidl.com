@@ -6,12 +6,10 @@ const SUBGRAPH_URL = "https://api.studio.thegraph.com/query/1713980/batch-21-bui
 
 const CHECKED_IN_EVENTS_QUERY = gql`
   query CheckedInEvents {
-    checkedIns {
+    checkedIns(first: 1000, orderBy: blockTimestamp, orderDirection: asc) {
       id
       builder
-      first
       blockTimestamp
-      checkInContract
       transactionHash
     }
   }
@@ -19,25 +17,21 @@ const CHECKED_IN_EVENTS_QUERY = gql`
 
 const GRADUATION_NFT_EVENTS_QUERY = gql`
   query GraduationNFTEvents {
-    graduationNFTs {
+    graduationNFTs(first: 1000, orderBy: blockTimestamp, orderDirection: asc) {
       id
       to
       tokenId
       blockTimestamp
       transactionHash
-      blockNumber
-      logIndex
     }
   }
 `;
 
 type RawCheckIn = {
+  id: string;
   builder: string;
-  first: boolean;
   blockTimestamp: string;
   transactionHash?: string;
-  checkInContract?: string;
-  id: string;
 };
 
 type RawGraduation = {
@@ -46,8 +40,6 @@ type RawGraduation = {
   tokenId: string;
   blockTimestamp: string;
   transactionHash?: string;
-  blockNumber?: string;
-  logIndex?: string;
 };
 
 export function useCheckInEventsFromSubgraph() {
@@ -56,7 +48,8 @@ export function useCheckInEventsFromSubgraph() {
     queryFn: async () => {
       const { checkedIns } = await request<{ checkedIns: RawCheckIn[] }>(SUBGRAPH_URL, CHECKED_IN_EVENTS_QUERY);
 
-      const allEvents: TimelineEvent[] = (checkedIns ?? []).map(
+      // Direct mapping
+      return (checkedIns ?? []).map(
         (event: RawCheckIn): TimelineEvent => ({
           type: "on-chain-checkin",
           date: event.blockTimestamp ? new Date(Number(event.blockTimestamp) * 1000).toISOString() : "",
@@ -66,25 +59,10 @@ export function useCheckInEventsFromSubgraph() {
           link: event.transactionHash ? `https://arbiscan.io/tx/${event.transactionHash}` : undefined,
         }),
       );
-
-      // Sort builder events chronologically and flatten
-      const correctedEvents: TimelineEvent[] = Object.values(
-        allEvents.reduce(
-          (acc, event) => {
-            const normalizedAddress = event.address ? event.address.toLowerCase() : "";
-            if (!normalizedAddress) return acc;
-            if (!acc[normalizedAddress]) {
-              acc[normalizedAddress] = [];
-            }
-            acc[normalizedAddress].push(event);
-            return acc;
-          },
-          {} as Record<string, TimelineEvent[]>,
-        ),
-      ).flatMap(builderEvents => builderEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
-
-      return correctedEvents;
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    retry: 1, // Retry once on failure
   });
 }
 
@@ -108,5 +86,8 @@ export function useGraduationNFTEventsFromSubgraph() {
         }),
       );
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 }

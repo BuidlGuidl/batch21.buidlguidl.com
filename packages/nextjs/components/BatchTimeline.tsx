@@ -41,7 +41,8 @@ const typeStyles: Record<
 };
 
 export const BatchTimeline = ({ events }: BatchTimelineProps) => {
-  const sorted = [...(events || [])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // const sorted = [...(events || [])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // not needed anymore as events are pre-sorted
+  const sorted = events || [];
   const newestIndex = sorted.length - 1;
 
   return (

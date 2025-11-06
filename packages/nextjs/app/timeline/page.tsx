@@ -32,7 +32,7 @@ export default function TimelinePage() {
 
   useEffect(() => {
     if (!isLoading) return;
-    const interval = setInterval(() => setMessageIndex(i => (i + 1) % LOADING_MESSAGES.length), 2000);
+    const interval = setInterval(() => setMessageIndex(i => (i + 1) % LOADING_MESSAGES.length), 1000);
     return () => clearInterval(interval);
   }, [isLoading]);
 
@@ -109,7 +109,6 @@ export default function TimelinePage() {
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="alert alert-error shadow-lg max-w-md">
           <div>
-            {/* Error Icon SVG */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="stroke-current flex-shrink-0 h-6 w-6"
