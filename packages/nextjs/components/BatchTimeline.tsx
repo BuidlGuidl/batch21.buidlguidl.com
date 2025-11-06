@@ -62,7 +62,7 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
   const newestIndex = sorted.length - 1;
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-transparent" : "bg-white"}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-transparent" : "bg-transparent"}`}>
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h2 className={`text-3xl md:text-4xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -87,7 +87,7 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
             <div
               className={`absolute top-0 h-full border-l-2 border-dashed z-0
                 left-4 md:left-1/2 md:-translate-x-1/2
-                ${isDark ? "border-gray-700" : "border-gray-300"}
+                ${isDark ? "border-gray-700" : "border-gray-100"}
               `}
             />
 
@@ -153,7 +153,7 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
                           ${
                             isDark
                               ? `bg-gradient-to-br ${style.cardBg} border-gray-700 hover:border-gray-600`
-                              : `bg-gradient-to-br from-gray-50 to-white border-gray-200 hover:border-gray-300`
+                              : `bg-gradient-to-br from-white/30 to-white/20 border-gray-200 hover:border-gray-300 backdrop-blur-md`
                           }
                           w-full max-w-full overflow-hidden
                         `}
