@@ -1,41 +1,43 @@
-"use client";
-
+import { useEffect } from "react";
 import Link from "next/link";
 import { Address } from "~~/components/scaffold-eth/Address/Address";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
 type Props = {
   tokenId: number;
-  chainId: any;
+  handleNftLoaded?: (id: number) => void;
 };
 
 function decodeBase64Json(dataUrl: string): { name?: string; image?: string } | undefined {
   try {
     const prefix = "data:application/json;base64,";
-    if (!dataUrl || !dataUrl.startsWith(prefix)) return undefined;
+    if (!dataUrl?.startsWith(prefix)) return undefined;
+
     const b64 = dataUrl.slice(prefix.length);
     const jsonStr = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("utf-8");
-    const json = JSON.parse(jsonStr);
-    return { name: json.name, image: json.image };
+    return JSON.parse(jsonStr);
   } catch {
     return undefined;
   }
 }
 
-export const GraduateItem = ({ tokenId, chainId }: Props) => {
+export const GraduateItem = ({ tokenId, handleNftLoaded }: Props) => {
   const { data: owner } = useScaffoldReadContract({
     contractName: "BatchGraduationNFT",
     functionName: "ownerOf",
     args: [BigInt(tokenId)],
-    chainId,
   });
 
   const { data: tokenURI } = useScaffoldReadContract({
     contractName: "BatchGraduationNFT",
     functionName: "tokenURI",
     args: [BigInt(tokenId)],
-    chainId,
+    query: { enabled: !!owner },
   });
+
+  useEffect(() => {
+    if (owner && handleNftLoaded) handleNftLoaded(tokenId);
+  }, [owner, handleNftLoaded, tokenId]);
 
   if (!owner) return null;
 

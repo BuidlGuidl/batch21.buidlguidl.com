@@ -1,73 +1,30 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GraduateItem } from "~~/components/GraduateItem";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { useScaffoldContract } from "~~/hooks/scaffold-eth/useScaffoldContract";
-import { contracts } from "~~/utils/scaffold-eth/contract";
 
 export const Batch21Graduates: React.FC = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const nftEntry = contracts?.[targetNetwork?.id]?.BatchGraduationNFT;
-  const nftAddress = nftEntry?.address as `0x${string}` | undefined;
-
-  const { data: nftContract } = useScaffoldContract({
-    contractName: "BatchGraduationNFT",
-    chainId: targetNetwork?.id as any,
-  });
-
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [maxId, setMaxId] = useState(0);
+  const [maxLoaded, setMaxLoaded] = useState(-1);
   const hasInitialized = useRef(false);
 
-  async function findMaxMinted(contract: any): Promise<number> {
-    let id = 1;
-    while (true) {
-      try {
-        await contract.read.ownerOf([BigInt(id)]);
-        id++;
-      } catch {
-        break;
-      }
-    }
-    return id - 1;
-  }
+  const handleNftLoaded = useCallback((id: number) => {
+    setMaxLoaded(prev => Math.max(prev, id));
+  }, []);
 
   useEffect(() => {
-    if (!nftAddress || !nftContract) return;
     if (hasInitialized.current) return;
-
     hasInitialized.current = true;
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const max = await findMaxMinted(nftContract);
-        setMaxId(max);
-        setLastUpdated(new Date());
-      } catch (e: any) {
-        setError(String(e?.message ?? e));
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [nftAddress, nftContract]);
 
-  const handleRefresh = async () => {
-    if (!nftContract) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const max = await findMaxMinted(nftContract);
-      setMaxId(max);
-      setLastUpdated(new Date());
-    } catch (e: any) {
-      setError(String(e?.message ?? e));
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    setLastUpdated(new Date());
+    setLoading(false);
+  }, []);
+
+  const handleRefresh = () => {
+    setLoading(true);
+    setMaxLoaded(0);
+    setLastUpdated(new Date());
+    setLoading(false);
   };
 
   return (
@@ -81,10 +38,12 @@ export const Batch21Graduates: React.FC = () => {
           </span>
           <span className="hidden sm:inline">Graduates</span>
         </h3>
+
         <div>
           <button className="btn btn-sm btn-outline" onClick={handleRefresh} disabled={loading}>
             {loading ? "Refreshing…" : "Refresh"}
           </button>
+
           {lastUpdated && (
             <div className="text-[11px] mt-1 flex items-center gap-1 italic">
               <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
@@ -94,14 +53,8 @@ export const Batch21Graduates: React.FC = () => {
         </div>
       </div>
 
-      {!nftAddress ? (
-        <div className="text-sm text-muted">NFT contract not found in runtime registry</div>
-      ) : loading ? (
+      {loading ? (
         <div className="text-sm">Scanning for minted tokens…</div>
-      ) : error ? (
-        <div className="text-red-600 text-sm">Error: {error}</div>
-      ) : maxId === 0 ? (
-        <div className="text-sm">No graduates found yet.</div>
       ) : (
         <div
           className="
@@ -116,8 +69,12 @@ export const Batch21Graduates: React.FC = () => {
           "
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-stretch">
-            {Array.from({ length: maxId }).map((_, i) => (
-              <GraduateItem key={i + 1} tokenId={i + 1} chainId={targetNetwork?.id as number} />
+            {Array.from({ length: maxLoaded + 2 }, (_, i) => i + 1).map(tokenId => (
+              <GraduateItem
+                key={`${lastUpdated?.getTime() ?? 0}-${tokenId}`}
+                tokenId={tokenId}
+                handleNftLoaded={handleNftLoaded}
+              />
             ))}
           </div>
         </div>
