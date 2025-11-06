@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
-import { usePublicClient } from "wagmi";
+import { Address } from "~~/components/scaffold-eth/Address/Address";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract } from "~~/hooks/scaffold-eth/useScaffoldContract";
 import { contracts } from "~~/utils/scaffold-eth/contract";
 
 type Graduate = {
@@ -14,12 +16,6 @@ type Graduate = {
   image?: string;
 };
 
-const MAX_SCAN = 20;
-
-function shortAddress(addr: string) {
-  if (!addr) return "";
-  return addr.length > 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : addr;
-}
 function decodeBase64Json(dataUrl: string): { name?: string; image?: string } | undefined {
   try {
     const prefix = "data:application/json;base64,";
@@ -35,7 +31,6 @@ function decodeBase64Json(dataUrl: string): { name?: string; image?: string } | 
 
 export const Batch21Graduates: React.FC = () => {
   const { targetNetwork } = useTargetNetwork();
-  const publicClient = usePublicClient({ chainId: targetNetwork?.id });
 
   const nftEntry = contracts?.[targetNetwork?.id]?.BatchGraduationNFT;
   const nftAddress = nftEntry?.address as `0x${string}` | undefined;
@@ -44,58 +39,49 @@ export const Batch21Graduates: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [graduates, setGraduates] = useState<Graduate[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const hasScanned = useRef(false);
+
+  const { data: nftContract } = useScaffoldContract({
+    contractName: "BatchGraduationNFT",
+    chainId: targetNetwork?.id as any,
+  });
 
   const scan = useCallback(async () => {
-    if (!publicClient || !nftAddress) return;
+    if (!nftContract) return;
 
     setLoading(true);
     setError(null);
 
     const found: Graduate[] = [];
-    const abi = [
-      "function ownerOf(uint256 tokenId) view returns (address)",
-      "function tokenURI(uint256 tokenId) view returns (string)",
-    ];
 
     try {
-      for (let id = 1; id <= MAX_SCAN; id++) {
-        let ownerRaw: `0x${string}` | undefined;
+      let id = 1;
+      while (true) {
+        let owner;
         try {
-          ownerRaw = (await publicClient.readContract({
-            address: nftAddress,
-            abi,
-            functionName: "ownerOf",
-            args: [BigInt(id)],
-          })) as `0x${string}`;
+          owner = await nftContract.read.ownerOf([BigInt(id)]);
         } catch {
+          // stops when token doesn't exist
           break;
         }
 
-        const owner = String(ownerRaw).toLowerCase();
-
         let rawTokenURI: string | undefined;
         try {
-          rawTokenURI = (await publicClient.readContract({
-            address: nftAddress,
-            abi,
-            functionName: "tokenURI",
-            args: [BigInt(id)],
-          })) as string;
+          rawTokenURI = await nftContract.read.tokenURI([BigInt(id)]);
         } catch {
           rawTokenURI = undefined;
         }
 
         const parsed = decodeBase64Json(rawTokenURI ?? "");
-        const name = parsed?.name;
-        const image = parsed?.image;
-
         found.push({
           tokenId: id,
           owner,
           tokenURI: rawTokenURI,
-          name,
-          image,
+          name: parsed?.name,
+          image: parsed?.image,
         });
+
+        id++;
       }
 
       setGraduates(found);
@@ -105,13 +91,14 @@ export const Batch21Graduates: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [publicClient, nftAddress]);
+  }, [nftContract]);
 
   useEffect(() => {
-    if (nftAddress && publicClient) {
-      scan();
-    }
-  }, [nftAddress, publicClient, scan]);
+    if (!nftAddress || !nftContract) return;
+    if (hasScanned.current) return;
+    hasScanned.current = true;
+    scan();
+  }, [nftAddress, nftContract, scan]);
 
   const handleRefresh = async () => {
     setError(null);
@@ -121,10 +108,12 @@ export const Batch21Graduates: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto p-4 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-gray-900/90 drop-shadow-sm">
+        <h3 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-gray-900/90 dark:text-white drop-shadow-sm">
           <span className="text-3xl md:text-4xl">🎓</span>
           <span>Hall of Fame </span>
-          <span className="hidden sm:inline text-indigo-600 font-semibold">Batch #21</span>
+          <span className="hidden sm:inline bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600 font-semibold">
+            Batch #21
+          </span>
           <span className="hidden sm:inline">Graduates</span>
         </h3>
         <div>
@@ -151,6 +140,7 @@ export const Batch21Graduates: React.FC = () => {
       ) : (
         <div
           className="
+          
             mt-4
             max-h-[60vh]   
             md:max-h-[55vh] 
@@ -163,12 +153,11 @@ export const Batch21Graduates: React.FC = () => {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-stretch">
             {graduates.map(g => {
-              const avatarUrl = g.image || `https://api.dicebear.com/6.x/identicon/svg?seed=${g.owner}`;
               return (
-                <Link key={g.tokenId} href={`/builders/${g.owner}`} className="block w-full h-full">
+                <Link key={g.tokenId} href={`/builders/${g.owner}`} className="block mt-4 w-full h-full">
                   <div
                     className="
-                      relative bg-white border border-gray-200 rounded-xl 
+                      relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl 
                       p-3 sm:p-4               /* smaller padding on xs */
                       flex flex-col items-center h-full
                       shadow-[0_0_15px_rgba(99,102,241,0.08)]
@@ -177,23 +166,20 @@ export const Batch21Graduates: React.FC = () => {
                       hover:-translate-y-1 hover:border-indigo-300
                     "
                   >
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-indigo-200 mb-2 sm:mb-3 shadow-sm transition">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={avatarUrl} alt={`avatar ${g.owner}`} className="w-full h-full object-cover" />
-                    </div>
-
                     <div
                       className="
-                        text-sm sm:text-sm md:text-base font-semibold text-gray-800 
+                        text-sm sm:text-sm md:text-base font-semibold text-gray-800 dark:text-gray-200
                         group-hover:text-indigo-600 transition
                         max-w-[140px] sm:max-w-[160px] text-center
                         whitespace-nowrap overflow-hidden text-ellipsis
                       "
                     >
-                      {shortAddress(g.owner)}
+                      <Address address={g.owner} size="sm" disableAddressLink onlyEnsOrAddress />
                     </div>
 
-                    <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">{g.name}</div>
+                    <div className="mt-1 w-full text-center text-xs text-gray-500 truncate dark:text-gray-200">
+                      {g.name}
+                    </div>
                   </div>
                 </Link>
               );
