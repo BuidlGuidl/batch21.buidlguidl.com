@@ -145,9 +145,8 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
                             </time>
                           </div>
                           <h3
-                            className="text-lg md:text-xl font-semibold mb-2 break-words whitespace-normal text-gray-900 dark:text-white"
+                            className="text-lg md:text-xl font-semibold mb-2 break-words whitespace-pre-wrap text-gray-900 dark:text-white"
                             title={event.title}
-                            style={{ wordBreak: "break-word", whiteSpace: "pre-wrap", overflowWrap: "break-word" }}
                           >
                             {event.title}
                           </h3>
