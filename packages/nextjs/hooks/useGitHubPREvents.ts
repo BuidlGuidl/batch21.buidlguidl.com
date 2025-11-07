@@ -6,30 +6,20 @@ import { useQuery } from "@tanstack/react-query";
 interface UseGitHubPREventsParams {
   owner: string;
   repo: string;
-  token?: string;
 }
 
-export const useGitHubPREvents = ({ owner, repo, token }: UseGitHubPREventsParams) => {
+export const useGitHubPREvents = ({ owner, repo }: UseGitHubPREventsParams) => {
   return useQuery<TimelineEvent[], Error>({
-    queryKey: ["githubPRs", owner, repo, token],
+    queryKey: ["githubPRs", owner, repo],
     queryFn: async () => {
       if (!owner || !repo) {
         throw new Error("Owner and repo are required");
       }
 
-      if (!token) {
-        console.warn("NEXT_PUBLIC_GITHUB_TOKEN not set - skipping GitHub PR fetch");
-        return [];
-      }
-
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/pulls?state=closed&base=main&per_page=100`,
         {
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-          cache: "no-store",
+          cache: "no-store", // Keep this - still good for not caching at HTTP level
         },
       );
 
@@ -50,8 +40,8 @@ export const useGitHubPREvents = ({ owner, repo, token }: UseGitHubPREventsParam
           link: pr.html_url,
         }));
     },
-    enabled: !!owner && !!repo && !!token,
+    enabled: !!owner && !!repo,
     retry: 2,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 10 * 60 * 1000, // Increase to 10 minutes (more aggressive caching for rate limit)
   });
 };

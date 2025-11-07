@@ -19,7 +19,6 @@ export const useTimelineEvents = (config: TimelineConfig) => {
   const gitHubPRResult = useGitHubPREvents({
     owner: config.githubOwner,
     repo: config.githubRepo,
-    token: config.githubToken,
   });
 
   // Compute merged and sorted events without extra state

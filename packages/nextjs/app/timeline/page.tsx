@@ -26,7 +26,6 @@ const TimelinePage: NextPage = () => {
     graduationNFTAddress: BATCH_GRADUATION_NFT_ADDRESS,
     githubOwner: GITHUB_REPO_OWNER,
     githubRepo: GITHUB_REPO_NAME,
-    githubToken: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
   });
 
   const [messageIndex, setMessageIndex] = useState(0);
