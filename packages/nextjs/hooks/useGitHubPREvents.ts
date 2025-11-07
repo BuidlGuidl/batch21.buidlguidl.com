@@ -18,7 +18,7 @@ export const useGitHubPREvents = ({ owner, repo, token }: UseGitHubPREventsParam
       }
 
       if (!token) {
-        console.warn("GITHUB_TOKEN not set - skipping GitHub PR fetch");
+        console.warn("NEXT_PUBLIC_GITHUB_TOKEN not set - skipping GitHub PR fetch");
         return [];
       }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { NextPage } from "next";
 import { BatchTimeline } from "~~/components/BatchTimeline";
 import { useTimelineEvents } from "~~/hooks";
 
@@ -13,9 +14,9 @@ const LOADING_MESSAGES = [
   "⛓️ Reading on-chain check-ins from Arbitrum",
   "🎓 Fetching graduation NFT mints",
   "✨ Loading merged PRs from GitHub",
-];
+] as const;
 
-export default function TimelinePage() {
+const TimelinePage: NextPage = () => {
   const {
     data: events,
     isLoading,
@@ -32,7 +33,9 @@ export default function TimelinePage() {
 
   useEffect(() => {
     if (!isLoading) return;
-    const interval = setInterval(() => setMessageIndex(i => (i + 1) % LOADING_MESSAGES.length), 1000);
+    const interval = setInterval(() => {
+      setMessageIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2000);
     return () => clearInterval(interval);
   }, [isLoading]);
 
@@ -133,4 +136,6 @@ export default function TimelinePage() {
   }
 
   return <BatchTimeline events={events || []} />;
-}
+};
+
+export default TimelinePage;

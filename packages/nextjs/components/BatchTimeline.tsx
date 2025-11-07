@@ -1,5 +1,3 @@
-"use client";
-
 import { Address } from "~~/components/scaffold-eth";
 import { TimelineEvent } from "~~/hooks";
 
@@ -41,7 +39,6 @@ const typeStyles: Record<
 };
 
 export const BatchTimeline = ({ events }: BatchTimelineProps) => {
-  // const sorted = [...(events || [])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // not needed anymore as events are pre-sorted
   const sorted = events || [];
   const newestIndex = sorted.length - 1;
 
@@ -121,20 +118,7 @@ export const BatchTimeline = ({ events }: BatchTimelineProps) => {
                       `}
                     >
                       <div
-                        className={`rounded-lg border shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105
-                          bg-gradient-to-br ${style.cardBg}
-                          border-gray-200 dark:border-gray-700
-                          hover:border-gray-300 dark:hover:border-gray-600
-                          from-white/30 to-white/20 dark:from-gray-800/30 dark:to-gray-900/20
-                          backdrop-blur-md
-                          w-full max-w-full overflow-hidden
-                        `}
-                        style={{
-                          wordBreak: "break-word",
-                          whiteSpace: "normal",
-                          overflowWrap: "break-word",
-                          backdropFilter: "blur(12px)",
-                        }}
+                        className={`rounded-lg border shadow-lg transition-all duration-300 bg-gradient-to-br ${style.cardBg} border-gray-200 dark:border-gray-700 from-white/30 to-white/20 dark:from-gray-800/30 dark:to-gray-900/20 backdrop-blur-md w-full max-w-full overflow-hidden break-words whitespace-normal`}
                       >
                         <div className="p-5 md:p-6">
                           <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
